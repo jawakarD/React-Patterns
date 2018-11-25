@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js" charset="utf-8"></script>
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+  </head>
+  <body>
+
+    <div id="root"></div>
+
+  </body>
+  <script type="text/babel">
+
+    const DataComponent = (ComposedComponent, url) =>
+      class DateComponent extends React.Component {
+        constructor(props) {
+          super(props)
+          this.state = {
+            data: [],
+            loading: false,
+            loaded: false
+          }
+        }
+
+        componentDidMount(){
+          this.setState({loading: true});
+          fetch(url)
+            .then(response => response.json())
+            .then(data =>
+                this.setState({
+                  loading: false,
+                  loaded: true,
+                  data
+                })
+            )
+        }
+
+        render(){
+          return(
+            <div>
+              {
+                this.state.loaded ? <ComposedComponent {...this.state} {...this.props}/>
+                : <div>Loading...</div>
+              }
+            </div>
+          )
+        }
+      }
+
+    const PeopleList = ({data}) => {
+      return(
+      <ol>
+        {data.results.map(((people, i) => {
+          const {first, last} = people.name;
+          return(
+            <li key ={i} >{first} {last}</li>
+          )
+          }))
+        }
+      </ol>
+      )
+    }
+
+    const RandomUser = DataComponent(PeopleList, "https://randomuser.me/api?results=100");
+
+    ReactDOM.render(
+      <RandomUser />,
+      document.getElementById('root')
+    );
+
+    </script>
+</html>
